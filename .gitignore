@@ -1,0 +1,37 @@
+# 编译输出
+target/
+*.class
+
+# 日志文件
+logs/
+*.log
+
+# 数据库文件
+*.db
+*.mv.db
+*.trace.db
+stockdb*
+
+# IDE文件
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# 配置文件中的敏感信息
+# 注意：如果您在application.properties中存储了API密钥，请考虑使用模板文件
+# src/main/resources/application-local.properties
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# 依赖缓存
+.mvn/
