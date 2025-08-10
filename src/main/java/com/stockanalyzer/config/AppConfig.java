@@ -38,8 +38,12 @@ public class AppConfig {
     private String wechatUrl;
     
     // 定时任务配置
-    private String stockFetchCron;
-    private String stockAnalysisCron;
+    private String dataFetchTime;
+    private String analysisTime;
+    private int newsIntervalHours;
+    private int notificationIntervalMinutes;
+    private int priceMonitoringIntervalMinutes;
+    private double priceAlertThreshold;
     
     // 股票列表
     private List<Stock> stockList;
@@ -95,8 +99,12 @@ public class AppConfig {
         wechatUrl = properties.getProperty("wechat.serverChan.url");
         
         // 定时任务配置
-        stockFetchCron = properties.getProperty("job.stockFetch.cron");
-        stockAnalysisCron = properties.getProperty("job.stockAnalysis.cron");
+        dataFetchTime = properties.getProperty("schedule.data_fetch_time", "16:00");
+        analysisTime = properties.getProperty("schedule.analysis_time", "16:30");
+        newsIntervalHours = Integer.parseInt(properties.getProperty("schedule.news_interval_hours", "4"));
+        notificationIntervalMinutes = Integer.parseInt(properties.getProperty("schedule.notification_interval_minutes", "5"));
+        priceMonitoringIntervalMinutes = Integer.parseInt(properties.getProperty("schedule.price_monitoring_interval_minutes", "15"));
+        priceAlertThreshold = Double.parseDouble(properties.getProperty("schedule.price_alert_threshold", "3.0"));
         
         // 解析股票列表
         parseStockList();
@@ -192,12 +200,28 @@ public class AppConfig {
         return wechatUrl;
     }
 
-    public String getStockFetchCron() {
-        return stockFetchCron;
+    public String getDataFetchTime() {
+        return dataFetchTime;
     }
 
-    public String getStockAnalysisCron() {
-        return stockAnalysisCron;
+    public String getAnalysisTime() {
+        return analysisTime;
+    }
+    
+    public int getNewsIntervalHours() {
+        return newsIntervalHours;
+    }
+    
+    public int getNotificationIntervalMinutes() {
+        return notificationIntervalMinutes;
+    }
+    
+    public int getPriceMonitoringIntervalMinutes() {
+        return priceMonitoringIntervalMinutes;
+    }
+    
+    public double getPriceAlertThreshold() {
+        return priceAlertThreshold;
     }
 
     public List<Stock> getStockList() {

@@ -10,7 +10,7 @@
 - **技术指标分析**：使用移动平均线、波段交易等技术分析方法生成交易信号
 - **新闻情感分析**：抓取并分析股票相关新闻，评估其对股价的潜在影响
 - **价格波动监控**：实时监控股票价格波动，当波动超过阈值时发送通知
-- **微信推送通知**：通过Server酱（ServerChan）将交易信号、重要新闻和价格波动推送到微信
+- **微信推送通知**：通过Server酱Turbo版将交易信号、重要新闻和价格波动推送到微信
 - **本地数据存储**：使用H2数据库存储股票数据、分析结果和通知记录
 - **命令行界面**：提供简单的命令行界面，方便用户手动执行任务和查看结果
 
@@ -37,8 +37,8 @@ cd stock-analyzer
 # Alpha Vantage API配置
 api.key=YOUR_ALPHA_VANTAGE_API_KEY
 
-# 微信推送配置（Server酱）
-wechat.key=YOUR_SERVERCHAN_KEY
+# 微信推送配置（Server酱Turbo版）
+wechat.key=YOUR_SENDKEY
 ```
 
 ### 3. 编译项目
@@ -118,9 +118,9 @@ db.password=
 api.url=https://www.alphavantage.co/query
 api.key=YOUR_ALPHA_VANTAGE_API_KEY
 
-# 微信推送配置
-wechat.url=https://sc.ftqq.com/
-wechat.key=YOUR_SERVERCHAN_KEY
+# 微信推送配置（Server酱Turbo版）
+wechat.url=https://sctapi.ftqq.com/
+wechat.key=YOUR_SENDKEY
 
 # 定时任务配置
 schedule.data_fetch_time=16:00
@@ -143,7 +143,7 @@ strategy.swing_threshold=5.0
 ## 注意事项
 
 1. Alpha Vantage API有调用频率限制，免费版每分钟最多5次调用，每天最多500次调用
-2. 确保Server酱的SCKEY有效，否则无法发送微信通知
+2. 确保Server酱Turbo版的SendKey有效，否则无法发送微信通知
 3. 首次运行时，系统会自动创建数据库和表结构
 4. 可以在配置文件中添加默认股票列表，系统启动时会自动初始化这些股票
 

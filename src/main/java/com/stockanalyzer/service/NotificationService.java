@@ -8,6 +8,7 @@ import com.stockanalyzer.model.AnalysisResult;
 import com.stockanalyzer.model.Notification;
 import com.stockanalyzer.model.Stock;
 import com.stockanalyzer.model.StockNews;
+import com.stockanalyzer.notification.TextBuilder;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -57,22 +58,8 @@ public class NotificationService {
             return null;
         }
         
-        String title = String.format("%s - %s信号 (置信度: %s%%)", 
-                stock.getName(), result.getSignal(), result.getConfidence());
-        
-        String content = String.format(
-                "## %s (%s) 交易信号\n\n" +
-                "**信号类型**: %s\n\n" +
-                "**置信度**: %s%%\n\n" +
-                "**分析日期**: %s\n\n" +
-                "**分析详情**:\n%s\n\n" +
-                "---\n" +
-                "*此消息由StockAnalyzer自动生成*",
-                stock.getName(), stock.getSymbol(),
-                result.getSignal(),
-                result.getConfidence(),
-                result.getAnalysisDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-                result.getDescription());
+        String title = TextBuilder.buildAnalysisTitle(result);
+        String content = TextBuilder.buildAnalysisContent(result);
         
         Notification notification = new Notification();
         notification.setStockId(stock.getId());
@@ -89,21 +76,8 @@ public class NotificationService {
      * 创建价格波动通知
      */
     public Notification createPriceAlertNotification(Stock stock, double currentPrice, double changePercent) {
-        String direction = changePercent > 0 ? "上涨" : "下跌";
-        String title = String.format("%s - 价格%s %.2f%%", stock.getName(), direction, Math.abs(changePercent));
-        
-        String content = String.format(
-                "## %s (%s) 价格波动提醒\n\n" +
-                "**当前价格**: %.2f\n\n" +
-                "**价格变动**: %s%.2f%%\n\n" +
-                "**提醒时间**: %s\n\n" +
-                "---\n" +
-                "*此消息由StockAnalyzer自动生成*",
-                stock.getName(), stock.getSymbol(),
-                currentPrice,
-                changePercent > 0 ? "+" : "",
-                changePercent,
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        String title = TextBuilder.buildPriceAlertTitle(stock, changePercent);
+        String content = TextBuilder.buildPriceAlertContent(stock, currentPrice, changePercent);
         
         Notification notification = new Notification();
         notification.setStockId(stock.getId());
@@ -124,38 +98,13 @@ public class NotificationService {
             return null;
         }
         
-        String title = String.format("%s - %d条最新相关新闻", stock.getName(), newsList.size());
-        
-        StringBuilder contentBuilder = new StringBuilder();
-        contentBuilder.append(String.format("## %s (%s) 相关新闻\n\n", stock.getName(), stock.getSymbol()));
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        int count = 0;
-        for (StockNews news : newsList) {
-            if (count++ >= 5) break; // 最多显示5条新闻
-            
-            String publishTime = news.getPublishDate() != null ? 
-                    news.getPublishDate().format(formatter) : "未知时间";
-            
-            contentBuilder.append(String.format(
-                    "### %s\n" +
-                    "**来源**: %s | **时间**: %s | **情感**: %s\n\n" +
-                    "%s\n\n" +
-                    "[阅读全文](%s)\n\n",
-                    news.getTitle(),
-                    news.getSource(),
-                    publishTime,
-                    translateSentiment(news.getSentiment()),
-                    news.getSummary(),
-                    news.getUrl()));
-        }
-        
-        contentBuilder.append("---\n*此消息由StockAnalyzer自动生成*");
+        String title = TextBuilder.buildNewsTitle(stock, newsList.size());
+        String content = TextBuilder.buildNewsContent(stock, newsList);
         
         Notification notification = new Notification();
         notification.setStockId(stock.getId());
         notification.setTitle(title);
-        notification.setContent(contentBuilder.toString());
+        notification.setContent(content);
         notification.setNotificationType("NEWS_ALERT");
         notification.setStatus("PENDING");
         notification.setStock(stock);
@@ -198,8 +147,8 @@ public class NotificationService {
         String serverChanUrl = appConfig.getWechatUrl();
         
         if (serverChanKey == null || serverChanKey.isEmpty() || 
-            serverChanKey.equalsIgnoreCase("YOUR_SCKEY")) {
-            logger.warn("未配置Server酱SCKEY，无法发送通知");
+            serverChanKey.equalsIgnoreCase("YOUR_SENDKEY")) {
+            logger.warn("未配置Server酱Turbo版SendKey，无法发送通知");
             return false;
         }
         
@@ -234,24 +183,7 @@ public class NotificationService {
         return false;
     }
 
-    /**
-     * 翻译情感分析结果
-     */
-    private String translateSentiment(String sentiment) {
-        if (sentiment == null) {
-            return "中性";
-        }
-        
-        switch (sentiment.toUpperCase()) {
-            case "POSITIVE":
-                return "积极";
-            case "NEGATIVE":
-                return "消极";
-            case "NEUTRAL":
-            default:
-                return "中性";
-        }
-    }
+
 
     /**
      * 获取最近的通知
